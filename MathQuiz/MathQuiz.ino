@@ -3,7 +3,7 @@
  * The game uses a potentiometer and a pushbutton for user INPUT.
  * It generates questions in a using a defined format but with random numbers.
  * For circuit diagram and other details visit www.curiousmotor.com
- *
+ * to add more levels all variables marked with //##CHANGE need to be changed
  */
 
 
@@ -26,6 +26,9 @@ String equation; // String to store the question
 int x,y,z; //variables for numbers in questions, declared here for global scope
 int ansUpperLimit; // upperlimit for potentiometer value
 int ansLowerLimit; // lowerlimit for potentiometer value
+int level=1; // Decided variety of questions
+int prevLevelUp;
+const int maxlevel=2; //the max level you've programmed for    ##CHANGE    
 volatile int selectedAnswer; // answer selected by user
 #define LOGO_HEIGHT   64
 #define LOGO_WIDTH    128
@@ -127,55 +130,79 @@ void setup() {
 }
 
 void loop() {
-
-displayEquation(equation);
-displayAnswerOptions();
-display.display();
-
-if(digitalRead(PUSHBUTTON)==LOW){
-checkAndProceed();
-delay(1000);
-}
-display.clearDisplay();
+  displayEquation(equation);
+  displayAnswerOptions();
+  display.display();
+  
+  if(digitalRead(PUSHBUTTON)==LOW){
+    checkAndProceed();
+    delay(1000);
+  }
+  display.clearDisplay();
 }
 
 void displayAnswerOptions(){
-display.setTextSize(2);   
- display.setTextColor(SSD1306_WHITE);        // Draw white text
- display.setCursor(0,SCREEN_HEIGHT/2+5); 
- 
- selectedAnswer= map(analogRead(POTENTIOMETER), 0, 1023, ansLowerLimit, ansUpperLimit); //Map pot values that range from 0-1023 to upper and lower limit values depending on the question's nswer
- display.println("Ans= " + String(selectedAnswer)); 
-
+  display.setTextSize(2);   
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,SCREEN_HEIGHT/2+5); 
+  selectedAnswer= map(analogRead(POTENTIOMETER), 0, 1023, ansLowerLimit, ansUpperLimit); //Map pot values that range from 0-1023 to upper and lower limit values depending on the question's nswer
+  display.println("Ans= " + String(selectedAnswer)); 
 }
 
 //Function to display question
 void displayEquation(String equation){
-display.setTextSize(2);             // Normal 1:1 pixel scale
- display.setTextColor(SSD1306_WHITE);        // Draw white text
- display.setCursor(0,0); 
- display.println(equation);
+  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0); 
+  display.println(equation);
 
 }
 
 //Function to check user's answer and proceed
 void checkAndProceed(void){
-display.clearDisplay();
+  display.clearDisplay();
   //if correct then proceed else cut one point.
   if(correctAnswer==selectedAnswer){
-  score++;
-  
-  display.setCursor(0,SCREEN_HEIGHT/2-15);
-  display.setTextSize(2); 
-  display.println("Correct!");  
-  display.setCursor(0,SCREEN_HEIGHT/2);
-   display.setTextSize(1); 
-  display.println("Score= " + String(score));
-  newQuestion();
+    score++;
+    display.setCursor(0,SCREEN_HEIGHT/2-15);
+    display.setTextSize(2); 
+    display.println("Correct!");  
+    display.setCursor(0,SCREEN_HEIGHT/2);
+    display.setTextSize(1); 
+    display.println("Score= " + String(score));
+    if (score-prevLevelUp>5 && level+1<=maxlevel){
+        levelup();
+    }
 
   }
   else{
-  
+    resetGame();
+  }
+  newQuestion();
+  display.display();
+  delay(1000);
+  display.clearDisplay();
+}
+
+//function to generate new question
+void newQuestion(void){
+  x=random(0,12);
+  y=random(0,12);
+  z=random(0,12);
+  int r = random(0, level);//as level increases, variety of questions increases
+  //Add your questions and answers below by following the example below
+  String equationSet[]={String(x)+"*("+String(y)+"+"+String(z)+")= ?" , "("+String(x)+"+"+String(y)+")"+"("+String(x)+"-"+String(y)+")"}; //##CHANGE
+  int answerSet[]={x*(y+z), x*x-y*y}; //##CHANGE
+  equation= equationSet[r];
+  correctAnswer=answerSet[r];
+  ansUpperLimit=correctAnswer + random(0,10);
+  ansLowerLimit=correctAnswer - random(0,10);
+}
+
+//resetGame and display score
+void resetGame(void){
+  level=1;
+  score=0;
   display.setCursor(0,SCREEN_HEIGHT/2-15);
   display.setTextSize(1); 
   display.println("-Game Over-");  
@@ -183,24 +210,17 @@ display.clearDisplay();
    display.setTextSize(1); 
   display.println("Score= " + String(score));
   display.println();
-  display.println("The correct answer was " + String(correctAnswer));
-
-
-  }
-    display.display();
-  delay(1000);
-  display.clearDisplay();
+  display.println("The correct answer is " + String(correctAnswer));
+  display.display();
+  delay(3000);
 }
 
-//function to generate new question
-void newQuestion(void){
-x=random(0,12);
-y=random(0,12);
-z=random(0,12);
-String equationSet[]={String(x)+"*("+String(y)+"+"+String(z)+") = ?"};
-int answerSet[]={x*(y+z)};
-equation= equationSet[0];
-correctAnswer=answerSet[0];
-ansUpperLimit=correctAnswer + random(0,10);
-ansLowerLimit=correctAnswer - random(0,10);
+void levelup(void){
+  level++;
+  display.clearDisplay();
+  display.setCursor(0,SCREEN_HEIGHT/2-15);
+  display.setTextSize(2); 
+  display.println("LEVEL "+ String(level)+ "!");  
+  display.display();
+  delay(2000);
 }
