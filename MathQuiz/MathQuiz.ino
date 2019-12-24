@@ -1,3 +1,12 @@
+/*
+ * A simple math quiz game that can be played on an OLED screen.
+ * The game uses a potentiometer and a pushbutton for user INPUT.
+ * It generates questions in a using a defined format but with random numbers.
+ * For circuit diagram and other details visit www.curiousmotor.com
+ *
+ */
+
+
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -5,22 +14,22 @@
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define PUSHBUTTON 2
-#define POTENTIOMETER A0
+#define PUSHBUTTON 2 // Pushbutton is connected to pin 2
+#define POTENTIOMETER A0 //Potentiometer output is wired to A0
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int score= 0;
-int correctAnswer=32;    //30 for test
-String equation;
-int x,y,z;
-int ansUpperLimit;
-int ansLowerLimit;
-volatile int selectedAnswer;
+int score= 0; // Keep track of score
+int correctAnswer; //correct solution of the question
+String equation; // String to store the question
+int x,y,z; //variables for numbers in questions, declared here for global scope
+int ansUpperLimit; // upperlimit for potentiometer value
+int ansLowerLimit; // lowerlimit for potentiometer value
+volatile int selectedAnswer; // answer selected by user
 #define LOGO_HEIGHT   64
 #define LOGO_WIDTH    128
-// 'rsz_logofinal', 128x64px
+// Below is the splash screen for the curiousmotor logo- (can be removed)
 const unsigned char logo_bmp [] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -89,10 +98,9 @@ const unsigned char logo_bmp [] PROGMEM = {
 };
 
 
-
+//Function to draw the curiousmotor splash screen
 void testdrawbitmap(void) {
   display.clearDisplay();
-
   display.drawBitmap(
     (display.width()  - LOGO_WIDTH ) / 2,
     (display.height() - LOGO_HEIGHT) / 2,
@@ -104,20 +112,18 @@ void testdrawbitmap(void) {
 void setup() {
   Serial.begin(9600);
     if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
+      Serial.println(F("SSD1306 allocation failed"));
+      for(;;); // Don't proceed, loop forever
   }
-
-
-display.clearDisplay();
-display.display();
-testdrawbitmap();    // Draw a small bitmap image
-delay(3000);
-display.clearDisplay();
-display.setTextWrap(true);
-
-pinMode(PUSHBUTTON, INPUT_PULLUP);
-newQuestion();
+  display.clearDisplay(); 
+  display.display();
+  testdrawbitmap();    
+  delay(3000);
+  display.clearDisplay();
+  display.setTextWrap(true);
+ 
+  pinMode(PUSHBUTTON, INPUT_PULLUP); // Declare the pushbutton as input
+  newQuestion();
 }
 
 void loop() {
@@ -134,15 +140,16 @@ display.clearDisplay();
 }
 
 void displayAnswerOptions(){
-display.setTextSize(2);             // Normal 1:1 pixel scale
+display.setTextSize(2);   
  display.setTextColor(SSD1306_WHITE);        // Draw white text
  display.setCursor(0,SCREEN_HEIGHT/2+5); 
  
- selectedAnswer= map(analogRead(POTENTIOMETER), 0, 1023, ansLowerLimit, ansUpperLimit);
+ selectedAnswer= map(analogRead(POTENTIOMETER), 0, 1023, ansLowerLimit, ansUpperLimit); //Map pot values that range from 0-1023 to upper and lower limit values depending on the question's nswer
  display.println("Ans= " + String(selectedAnswer)); 
 
 }
 
+//Function to display question
 void displayEquation(String equation){
 display.setTextSize(2);             // Normal 1:1 pixel scale
  display.setTextColor(SSD1306_WHITE);        // Draw white text
@@ -151,6 +158,7 @@ display.setTextSize(2);             // Normal 1:1 pixel scale
 
 }
 
+//Function to check user's answer and proceed
 void checkAndProceed(void){
 display.clearDisplay();
   //if correct then proceed else cut one point.
@@ -176,15 +184,15 @@ display.clearDisplay();
   display.println("Score= " + String(score));
   display.println();
   display.println("The correct answer was " + String(correctAnswer));
-  display.display();
 
-  
+
   }
     display.display();
   delay(1000);
   display.clearDisplay();
 }
 
+//function to generate new question
 void newQuestion(void){
 x=random(0,12);
 y=random(0,12);
