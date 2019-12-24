@@ -113,6 +113,7 @@ void testdrawbitmap(void) {
 } 
 
 void setup() {
+  randomSeed(analogRead(A2));//To ensure random values for random function
   Serial.begin(9600);
     if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
       Serial.println(F("SSD1306 allocation failed"));
@@ -195,8 +196,8 @@ void newQuestion(void){
   int answerSet[]={x*(y+z), x*x-y*y}; //##CHANGE
   equation= equationSet[r];
   correctAnswer=answerSet[r];
-  ansUpperLimit=correctAnswer + random(0,10);
-  ansLowerLimit=correctAnswer - random(0,10);
+  ansUpperLimit=correctAnswer + random(2,11);
+  ansLowerLimit=correctAnswer - random(2,11);
 }
 
 //resetGame and display score
