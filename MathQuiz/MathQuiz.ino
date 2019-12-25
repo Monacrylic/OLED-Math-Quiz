@@ -26,6 +26,7 @@ String equation; // String to store the question
 int x,y,z; //variables for numbers in questions, declared here for global scope
 int ansUpperLimit; // upperlimit for potentiometer value
 int ansLowerLimit; // lowerlimit for potentiometer value
+int questionsToLevelUp=3; //No of questions you need to answer correctly to level up
 int level=1; // Decided variety of questions
 int prevLevelUp;
 const int maxlevel=2; //the max level you've programmed for    ##CHANGE    
@@ -171,7 +172,7 @@ void checkAndProceed(void){
     display.setCursor(0,SCREEN_HEIGHT/2);
     display.setTextSize(1); 
     display.println("Score= " + String(score));
-    if (score-prevLevelUp>5 && level+1<=maxlevel){
+    if (score-prevLevelUp>questionsToLevelUp && level+1<=maxlevel){
         levelup();
     }
 
