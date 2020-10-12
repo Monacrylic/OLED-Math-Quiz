@@ -193,8 +193,9 @@ void newQuestion(void){
   z=random(0,12);
   int r = random(0, level);//as level increases, variety of questions increases
   //Add your questions and answers below by following the example below
-  String equationSet[]={String(x)+"*("+String(y)+"+"+String(z)+")= ?" , "("+String(x)+"+"+String(y)+")"+"("+String(x)+"-"+String(y)+")"}; //##CHANGE
-  int answerSet[]={x*(y+z), x*x-y*y}; //##CHANGE
+  String equationSet[]={String(x)+"*("+String(y)+"+"+String(z)+")= ?" , "("+String(x)+"+"+String(y)+")"+"("+String(x)+"-"+String(y)+")", String(x)+"*("+String(y)+"*"+String(z)+"-1)"}; //##CHANGE
+  int answerSet[]={x*(y+z), x*x-y*y, x*y*z-x}; //##CHANGE
+
   equation= equationSet[r];
   correctAnswer=answerSet[r];
   ansUpperLimit=correctAnswer + random(2,11);
